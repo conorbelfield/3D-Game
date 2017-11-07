@@ -7,21 +7,6 @@ let Scene = function(gl) {
 
 
 
-  this.material = new Material(gl, this.solidProgram);
-  this.material.time.set(0);
-  this.heartMaterial = new Material(gl, this.solidProgram);
-  this.heartMaterial.time.set(0);
-  this.material.solidColor.set(1, 1, 1);
-  this.heartMaterial.solidColor.set(1,1,1);
-  this.triangleGeometry = new TriangleGeometry(gl);
-  this.squareGeometry = new SquareGeometry(gl);
-  this.starGeometry = new StarGeometry(gl);
-  this.heartGeometry = new HeartGeometry(gl);
-  this.circleGeometry = new CircleGeometry(gl);
-
-  this.texture2D = new Texture2D(gl, "js/img/asteroid.png");
-
-
   this.vsTextured = new Shader(gl, gl.VERTEX_SHADER, "textured_vs.essl");
   this.fsTextured = new Shader(gl, gl.FRAGMENT_SHADER, "textured_fs.essl");
   this.texturedProgram = new TexturedProgram(gl, this.vsTextured, this.fsTextured);
@@ -36,24 +21,42 @@ let Scene = function(gl) {
 
 
   this.spMat1 = new Material(gl,this.threeDProgram);
-  this.spText1 = new Texture2D(gl, "js/slowpoke/YadonDh.png")
+  this.spText1 = new Texture2D(gl, "chevy/chevy.png")
   this.spMat1.colorTexture.set(this.spText1);
 
   this.spMat2 = new Material(gl,this.threeDProgram);
-  this.spText2 = new Texture2D(gl, "js/slowpoke/YadonEyeDh.png")
+  this.spText2 = new Texture2D(gl, "Intersections51.png")
   this.spMat2.colorTexture.set(this.spText2);
-  this.grid = new Array();
 
   this.texturedQuadGeometry = new TexturedQuadGeometry(gl);
-  this.avatar = new GameObject(new MultiMesh(gl, "js/slowpoke/Slowpoke.json", [this.spMat1, this.spMat2]));
-  this.avatar.scale.mul(.08,.08,.08);
+  this.avatar = new GameObject(new MultiMesh(gl, "chevy/chassis.json", [this.spMat1]));
+  this.avatar.scale.set(.5,.5,.5);
+
+  this.wheel1 = new GameObject(new MultiMesh(gl, "chevy/wheel.json", [this.spMat1]));
+  this.wheel2 = new GameObject(new MultiMesh(gl, "chevy/wheel.json", [this.spMat1]));
+  this.wheel3 = new GameObject(new MultiMesh(gl, "chevy/wheel.json", [this.spMat1]));
+  this.wheel4 = new GameObject(new MultiMesh(gl, "chevy/wheel.json", [this.spMat1]));
+  this.wheel1.scale.set(.55,.55,.55);
+  this.wheel2.scale.set(.55,.55,.55);
+  this.wheel3.scale.set(.55,.55,.55);
+  this.wheel4.scale.set(.55,.55,.55);
+  this.wheel1.position.set(3, -1, 5.7);
+  this.wheel2.position.set(-3, -1, 5.7);
+  this.wheel3.position.set(3, -1, -7.0);
+  this.wheel4.position.set(-3, -1, -7.0);
+  this.wheel1.id = "wheel";
+  this.wheel2.id = "wheel";
+  this.wheel3.id = "wheel";
+  this.wheel4.id = "wheel";
 
 
-  
 
+  this.floor = new GameObject(new Mesh(this.texturedQuadGeometry, this.spMat2));
+  this.floor.position = new Vec3(0, -2.5, 0)
+
+      
   this.camera = new OrthoCamera();
-  this.perspectiveCamera = new PerspectiveCamera();
-
+  this.perspectiveCamera = new PerspectiveCamera(this.avatar);
 
 
   this.dx = 1;
@@ -62,21 +65,20 @@ let Scene = function(gl) {
   this.rotateVal = 0;
   this.rotateChange = .05;
   this.timeAtLastFrame = new Date().getTime();
-  this.drawBoard();
+
   this.gl = gl;
 
-
+  this.gameObjects = [this.wheel1, this.wheel2, this.wheel3, this.wheel4];
+  
+  for (var i = 0; i < this.gameObjects.length; i++) {
+    this.gameObjects[i].parent = this.avatar;
+    this.gameObjects[i].draw(this.perspectiveCamera);
+  }
+  this.gameObjects.push(this.avatar);
+  this.avatar.draw(this.perspectiveCamera);
 
 };
 
-
-
-Scene.prototype.drawBoard = function(gl) {
-
-
-      this.avatar.position.set(diffVector);
-
-}
 
 
 
@@ -87,7 +89,6 @@ Scene.prototype.update = function(gl, keysPressed) {
   let timeAtThisFrame = new Date().getTime();
   let dt = (timeAtThisFrame - this.timeAtLastFrame) / 1000.0;
   this.timeAtLastFrame = timeAtThisFrame;
-  //this.trianglePosition.x = ((1 + .1  * dt + this.trianglePosition.x) % 2) -1;
 
   // clear the screen
   gl.clearColor(0, .8, 0.8, 1.0);
@@ -95,52 +96,70 @@ Scene.prototype.update = function(gl, keysPressed) {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 
-  // //remove(this, true); 
 
-  // for (var i = 0; i < 10; i ++) {
-  //   for (var j = 0; j < 10; j++) {
-  //     if (this.grid[i][j].removing) {
-  //       if (this.grid[i][j].remCounter > 80)
-  //         this.grid[i][j] = null
-  //       else {
-  //         this.grid[i][j].remCounter++;
-  //         this.grid[i][j].orientation+=(3*dt);
-  //         this.grid[i][j].scale.mul(.985);
-  //       }
-  //     }
-  //   }
-  // }
+  this.perspectiveCamera.move(dt, keysPressed); 
 
-  // refill(this);
+  this.avatar.velocity = new Vec3(0, 0, 0);
 
-  this.heartMaterial.time.add(2*dt);
+  if (keysPressed["W"]) {
+    this.avatar.velocity.add(this.avatar.ahead);
+    this.avatar.move(dt);
+    this.wheel1.pitch -= 10*dt;
+    this.wheel2.pitch -= 10*dt;
+    this.wheel3.pitch -= 10*dt;
+    this.wheel4.pitch -= 10*dt;
 
-  for (var i = 0; i < 10; i ++) {
-    for (var j = 0; j < 10; j++) {
-      if (this.grid[i][j].id == "heart")
-        this.grid[i][j].orientation += (dt);
-      this.grid[i][j].draw(this.perspectiveCamera);
+    if (keysPressed["D"]) {
+      this.avatar.velocity.add(this.avatar.horizontal);
+      this.avatar.move(dt);
+      this.avatar.yaw-=.5*dt
     }
+    if (keysPressed["A"]) {
+      this.avatar.velocity.add(this.avatar.horizontal);
+      this.avatar.move(-1*dt);
+      this.avatar.yaw+=.5*dt
+    }  
+  } 
+  if (keysPressed["S"]) {
+    this.avatar.velocity.add(this.avatar.ahead);
+    this.wheel1.pitch += 10*dt;
+    this.wheel2.pitch += 10*dt;
+    this.wheel3.pitch += 10*dt;
+    this.wheel4.pitch += 10*dt;
+
+    this.avatar.move(-1*dt);
+
+    if (keysPressed["D"]) {
+      this.avatar.velocity.add(this.avatar.horizontal);
+      //this.avatar.move(dt);
+      this.avatar.yaw-=.5*dt
+    }
+    if (keysPressed["A"]) {
+      this.avatar.velocity.add(this.avatar.horizontal);
+      //this.avatar.move(-1*dt);
+      this.avatar.yaw+=.5*dt
+    }  
+  }
+ 
+  // if (keysPressed["D"]) {
+  //   this.avatar.velocity.add(this.avatar.horizontal);
+  //   this.avatar.move(dt);
+  //   this.avatar.yaw-=1*dt
+  // }
+  // if (keysPressed["A"]) {
+  //   this.avatar.velocity.add(this.avatar.horizontal);
+  //   this.avatar.move(-1*dt);
+  //   this.avatar.yaw+=1*dt
+  // }  
+
+
+  for (var i = 0; i < this.gameObjects.length; i ++) {
+
+    this.gameObjects[i].draw(this.perspectiveCamera);
+
   }
 
-  // if (keysPressed["I"]) {
-  //   this.perspectiveCamera.rotation -= dt;
-  //   this.perspectiveCamera.updateViewProjMatrix();
-  //   console.log("hi")
-  // }
-  // if (keysPressed["O"]) {
-  //   this.perspectiveCamera.rotation += dt;
-  //   this.perspectiveCamera.updateViewProjMatrix();
-  // }
-  // if(keysPressed["P"]) {
-  //   this.perspectiveCamera.rotation += Math.sin(timeAtThisFrame/10)/100;
-  //   this.quakeRemove();
-  //   this.perspectiveCamera.updateViewProjMatrix();
-  // }
-  if (keysPressed["W"])
-    console.log("hey")
-  this.perspectiveCamera.move(dt, keysPressed);
-
+  this.floor.draw(this.perspectiveCamera);
 
 
 };

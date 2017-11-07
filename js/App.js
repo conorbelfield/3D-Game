@@ -52,45 +52,14 @@ App.prototype.registerEventHandlers = function() {
 	};
 	this.canvas.onmousedown = function(event) {
 		//jshint unused:false
-		// isClicked = true;
-		// var coords = new Vec4(((event.clientX / theApp.canvas.clientWidth) - .5)*2,
-		//  (((event.clientY/ theApp.canvas.clientHeight) - .5) * -2), 1, 0);
 
-
-		// var matrixTemp = new Mat4();
-		//  matrixTemp.set(theApp.scene.camera.viewProjMatrix);
-		//  matrixTemp.invert();
-		//  coords.mul(matrixTemp);
-		//  //convert this location to an object
-		//  theApp.xCord = Math.floor((coords.x + 1) / .2);
-		//  theApp.yCord = Math.floor((coords.y + 1) / .2);
-
-		//  originalX = (theApp.xCord -5)/5;
-		//  originalY = (theApp.yCord -5)/5;
-
-		 if (theApp.keysPressed["B"]) {
-		 	theApp.scene.grid[theApp.xCord][theApp.yCord].removing = true;
-		 }
 
 		 theApp.scene.perspectiveCamera.mouseDown();
 
 	};
 	this.canvas.onmousemove = function(event) {
 		//jshint unused:false
-		// if (isClicked) {
-		// 	var coords = new Vec4(((event.clientX / theApp.canvas.clientWidth) - .5)*2,
-		//  		(((event.clientY/ theApp.canvas.clientHeight) - .5) * -2), 0, 1);
 
-		// 	var matrixTemp = new Mat4();
-		//  matrixTemp.set(theApp.scene.camera.viewProjMatrix);
-		//  matrixTemp.invert();
-		//  coords.mul(matrixTemp);
-			
-			//theApp.scene.grid[theApp.xCord][theApp.yCord].position.storage[0] = coords.x;
-			//theApp.scene.grid[theApp.xCord][theApp.yCord].position.storage[1] = coords.y
-			
-			
-		// }
 
 		theApp.scene.perspectiveCamera.mouseMove(event);
 		event.stopPropagation();
@@ -152,52 +121,7 @@ App.prototype.registerEventHandlers = function() {
 	});
 };
 
-function moveIfValid(theApp, i, j, i2, j2) {
 
-	if (i == i2 && j == j2)
-		return false;
-	if (Math.abs(i - i2) >1 || Math.abs(j-j2) > 1 || (Math.abs(i - i2) == 1 && Math.abs(j-j2) == 1))
-		return false;
-	
-	var temp = theApp.scene.grid[i][j];
-	temp.position.storage[0] = (i2-5)/5;
-	temp.position.storage[1] = (j2-5)/5;
-	theApp.scene.grid[i][j] = theApp.scene.grid[i2][j2];
-	theApp.scene.grid[i2][j2] = temp;
-
-	for (var a = -2; a < 1; a++) {
-		if (i + a >= 0 && i + a <= 7) {
-			if (theApp.scene.grid[i+a][j].id === theApp.scene.grid[i+a+1][j].id 
-				&& theApp.scene.grid[i+a+2][j].id === theApp.scene.grid[i+a][j].id) {
-
-				
-				return true;
-			}
-		}
-		if (i2 + a >= 0 && i2 + a <= 7) {
-			if (theApp.scene.grid[i2+a][j2].id === theApp.scene.grid[i2+a+1][j2].id 
-				&& theApp.scene.grid[i2+a+2][j2].id === theApp.scene.grid[i2+a][j2].id)
-				return true;
-		}
-		if (j + a >= 0 && j + a <= 7) {
-			if (theApp.scene.grid[i][j+a].id === theApp.scene.grid[i][j+a+1].id 
-			&& theApp.scene.grid[i][j+a+2].id === theApp.scene.grid[i][j+a].id)
-				return true;
-		}
-		if (j2 + a >= 0 && j2 + a <= 7) {
-			if (theApp.scene.grid[i2][j2+a].id === theApp.scene.grid[i2][j2+a+1].id 
-			&& theApp.scene.grid[i2][j2+a+2].id === theApp.scene.grid[i2][j2+a].id)
-				return true;
-		}
-	}
-	
-	// If we reach here, ther was no valid move
-	temp = theApp.scene.grid[i][j];
-	theApp.scene.grid[i][j] = theApp.scene.grid[i2][j2];
-	theApp.scene.grid[i2][j2] = temp;
-
-	return false;
-}
 
 
 
