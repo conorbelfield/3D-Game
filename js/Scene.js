@@ -57,12 +57,6 @@ let Scene = function(gl) {
   this.wheel2.position.set(-3, -1, 5.7);
   this.wheel3.position.set(3, -1, -7.0);
   this.wheel4.position.set(-3, -1, -7.0);
-  this.wheel1.id = "wheel";
-  this.wheel2.id = "wheel";
-  this.wheel3.id = "wheel";
-  this.wheel4.id = "wheel";
-
-
 
   this.floor = new GameObject(new Mesh(this.texturedQuadGeometry, this.spMat2));
   this.floor.position = new Vec3(0, -2.5, 0)
@@ -72,20 +66,7 @@ let Scene = function(gl) {
   this.perspectiveCamera = new PerspectiveCamera(this.avatar);
 
 
- 
-
-  this.gl = gl;
-
-  this.gameObjects = [this.wheel1, this.wheel2, this.wheel3, this.wheel4];
-  this.gameObjects.push(this.avatarShadow);
-  for (var i = 0; i < this.gameObjects.length; i++) {
-    this.gameObjects[i].parent = this.avatar;
-    this.gameObjects[i].draw(this.perspectiveCamera);
-  }
-  this.gameObjects.push(this.avatar);
-  this.avatar.draw(this.perspectiveCamera);
-
-  // LIGHT STUFF
+   // LIGHT STUFF
 
   this.directionalLight = new Vec4(0, 1, 0, 0);
   this.headLight = new Vec4(this.avatar.position + this.avatar.ahead, 1);
@@ -104,6 +85,19 @@ let Scene = function(gl) {
 
   Material.spotDirection.at(0).set(new Vec3(0, 1, 0));
   Material.spotDirection.at(1).set(this.avatar.ahead);
+
+  this.gl = gl;
+
+  this.gameObjects = [this.wheel1, this.wheel2, this.wheel3, this.wheel4];
+  //this.gameObjects.push(this.avatarShadow);
+  for (var i = 0; i < this.gameObjects.length; i++) {
+    this.gameObjects[i].parent = this.avatar;
+    this.gameObjects[i].draw(this.perspectiveCamera, this.lights, this.LPDs);
+  }
+  this.gameObjects.push(this.avatar);
+  this.avatar.draw(this.perspectiveCamera, this.lights, this.LPDs);
+
+
 };
 
 
@@ -187,11 +181,11 @@ Scene.prototype.update = function(gl, keysPressed) {
   if (this.avatar.position.y < 0)
     this.avatar.position.y = 0;
   for (var i = 0; i < this.gameObjects.length; i ++) {
-    this.gameObjects[i].draw(this.perspectiveCamera);
+    this.gameObjects[i].draw(this.perspectiveCamera, this.lights, this.LPDs);
 
   }
 
-  this.floor.draw(this.perspectiveCamera);
+  this.floor.draw(this.perspectiveCamera, this.lights, this.LPDs);
 
 
 };
