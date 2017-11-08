@@ -19,9 +19,11 @@ let GameObject = function(mesh) {
   this.horizontal = new Vec3(1,0,0);
   this.up = new Vec3(0, 1, 0);
 
-  this.speed = 10;
+  this.speed = 30;
 
   this.modelMatrix = new Mat4(); 
+
+  this.shadowMatrix = new Mat4();
 };
 
 GameObject.prototype.updateModelMatrix =
@@ -33,9 +35,9 @@ GameObject.prototype.updateModelMatrix =
     this.modelMatrix.rotate(this.parent.yaw, this.parent.up)
    .rotate(this.parent.pitch, this.parent.horizontal).translate(this.parent.position);
   }
-  // if(this.id.equals("wheel"))
-  //   this.modelMatrix.rotate(this.yaw, this.horizontal);
-  // 
+  if (this.shadowMatrix) {
+    this.modelMatrix.mul(this.shadowMatrix);
+  }
 
 };
 
@@ -61,9 +63,14 @@ GameObject.prototype.updateOrientation = function() {
 GameObject.prototype.draw = function(camera){ 
   this.updateModelMatrix();
     
+  Material.modelMatrixInverse.set().mul(this.modelMatrix.clone()).invert();
+
+  Material.modelViewProjMatrix.
+    set(this.modelMatrix).
+    mul(camera.viewProjMatrix);
+
   this.mesh.setUniform("modelMatrix", this.modelMatrix);
   this.mesh.setUniform("modelMatrixInverse", new Mat4(this.modelMatrix).invert());
   this.mesh.setUniform("modelViewProjMatrix", this.modelMatrix.mul(camera.viewProjMatrix));
-  // this.mesh.material.modelViewProjMatrix.set(this.modelMatrix.mul(camera.viewProjMatrix));
   this.mesh.draw(); 
 };

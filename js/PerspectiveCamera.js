@@ -23,6 +23,8 @@ var PerspectiveCamera = function(avatar)
   this.projMatrix = new Mat4();
   this.viewProjMatrix = new Mat4();
 
+  this.heartRot = 0;
+
   
   this.updateViewMatrix();
   this.updateProjMatrix(); 
@@ -67,39 +69,37 @@ PerspectiveCamera.prototype.move = function(dt, keysPressed) {
     } 
     this.mouseDelta = new Vec2(0.0, 0.0); 
 
-      this.ahead = new Vec3(
-     -Math.sin(this.yaw)*Math.cos(this.pitch),
-      Math.sin(this.pitch),
-     -Math.cos(this.yaw)*Math.cos(this.pitch) ); 
+      
+  }
+
+  this.position.set(new Vec3(this.avatar.position).addScaled(-45, this.ahead).addScaled(5, this.up));
+
+  if (keysPressed.T) {
+    this.heartRot += (.1* dt);
+    this.position.x = this.avatar.position.x + 5 * (16 * Math.pow(Math.sin(this.heartRot), 3)); 
+    this.position.z = this.avatar.position.z + 5 * (13 * Math.cos(this.heartRot) 
+        - 5 * Math.cos(2*this.heartRot) 
+        - 2 * Math.cos(3*this.heartRot)
+        - Math.cos(4*this.heartRot));
+
+  }
+    this.ahead = new Vec3(
+       -Math.sin(this.yaw)*Math.cos(this.pitch),
+        Math.sin(this.pitch),
+       -Math.cos(this.yaw)*Math.cos(this.pitch) ); 
     this.right.setVectorProduct(
-      this.ahead,
-      PerspectiveCamera.worldUp ); 
+        this.ahead,
+        PerspectiveCamera.worldUp ); 
     this.right.normalize(); 
     this.up.setVectorProduct(this.right, this.ahead); 
-  } 
-  // if(keysPressed.W) { 
-  //   this.avatar.position.addScaled(this.speed * dt, this.ahead); 
-  // } 
-  // if(keysPressed.S) { 
-  //   this.avatar.position.addScaled(-this.speed * dt, this.ahead); 
-  // } 
-  // // if(keysPressed.D) { 
-  // //   this.avatar.position.addScaled(this.speed * dt, this.right); 
-  // // } 
-  // // if(keysPressed.A) { 
-  // //   this.avatar.position.addScaled(-this.speed * dt, this.right); 
-  // // } 
-  // if(keysPressed.E) { 
-  //   this.avatar.position.addScaled(this.speed * dt, PerspectiveCamera.worldUp); 
-  // } 
-  // if(keysPressed.Q) { 
-  //   this.avatar.position.addScaled(-this.speed * dt, PerspectiveCamera.worldUp); 
-  // } 
+    this.updateViewMatrix(); 
+  
 
-  this.position.set(new Vec3(this.avatar.position).addScaled(-45, this.ahead).addScaled(5, this.up))
+  
+
   if (this.position.y < 0)
     this.position.y = 0;
-  this.updateViewMatrix(); 
+  
 };
 
 PerspectiveCamera.prototype.mouseDown = function() { 
