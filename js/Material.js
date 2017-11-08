@@ -35,8 +35,7 @@ Material.prototype.commit = function() {
   let theMaterial = this; 
   Object.keys(this.program.uniforms).forEach( function(uniformName) { 
     let uniform = theMaterial.program.uniforms[uniformName]; 
-
-      theMaterial[uniformName].commit(gl, uniform.location); 
+    theMaterial[uniformName].commit(gl, uniform.location); 
 
   }); 
 }; 
@@ -53,8 +52,11 @@ Material.dummy = new Proxy(new Function(), {
     return Material.dummy; 
   }, 
 }); 
+ 
+Object.defineProperty(Material,
+ "modelMatrix", {value: new Mat4()} );
 
-  Object.defineProperty(Material,
+Object.defineProperty(Material,
  "modelViewProjMatrix", {value: new Mat4()} );
 
 Object.defineProperty(Material,
@@ -70,7 +72,8 @@ Object.defineProperty(Material,
  "lightPowerDensity", {value: new Vec3Array(2)} );
 
 Object.defineProperty(Material,
- "spotDirection", {value: new Vec3Array(2)} );
+ "spotDir", {value: new Vec3Array(2)} );
+
 
 
 

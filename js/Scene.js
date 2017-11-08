@@ -31,14 +31,15 @@ let Scene = function(gl) {
   this.spText2 = new Texture2D(gl, "grass.png")
   this.spMat2.colorTexture.set(this.spText2);
 
-  this.avatarShadowMaterial = new Material(gl, this.shadowProgram);
-  this.avatarShadowMesh = new MultiMesh(gl, "chevy/chassis.json", [this.avatarShadowMaterial]);
+  this.shadowMaterial = new Material(gl, this.shadowProgram);
+  this.avatarShadowMesh = new MultiMesh(gl, "chevy/chassis.json", [this.shadowMaterial]);
   this.avatarShadow = new GameObject(this.avatarShadowMesh);
   this.avatarShadow.scale = new Vec3(.5,.5,.5)
-  var shadowMat = new Mat4([1, 0, 0, 0, -1, 0, -1, 0, 0, 0, 1, 0, 0, .01, 0, 1]);
+  var shadowMat = new Mat4([1, 0, 0, 0, -1, 0, -2.5, 0, 0, 0, 1, 0, 0, .01, 0, 1]);
   this.avatarShadow.shadowMatrix = shadowMat;
   this.avatarShadow.parent = this.avatar;
-  this.avatarShadow.position = new Vec3(1,1,1);
+  this.avatarShadow.position = new Vec3(0,0,0);
+  this.avatarShadow.scale.set(.5,.5,.5)
 
 
   this.texturedQuadGeometry = new TexturedQuadGeometry(gl);
@@ -58,6 +59,36 @@ let Scene = function(gl) {
   this.wheel3.position.set(3, -1, -7.0);
   this.wheel4.position.set(-3, -1, -7.0);
 
+  this.wheelShadowMesh = new MultiMesh(gl, "chevy/wheel.json", [this.shadowMaterial])
+  this.wheel1Shadow = new GameObject(this.wheelShadowMesh);
+  this.wheel1Shadow.shadowMatrix = shadowMat;
+  this.wheel1Shadow.scale.set(.55,.55,.55);
+  this.wheel1Shadow.parent = this.avatar;
+  this.wheel1Shadow.position = new Vec3(3, -1, 5.7);
+  this.wheel1Shadow.shadowMatrix = shadowMat;
+  
+  this.wheel2Shadow = new GameObject(this.wheelShadowMesh);
+  this.wheel2Shadow.shadowMatrix = shadowMat;
+  this.wheel2Shadow.scale.set(.55,.55,.55);
+  this.wheel2Shadow.parent = this.avatar;
+  this.wheel2Shadow.position = new Vec3(-3, -1, 5.7);
+  this.wheel2Shadow.shadowMatrix = shadowMat;
+  
+  this.wheel3Shadow = new GameObject(this.wheelShadowMesh);
+  this.wheel3Shadow.shadowMatrix = shadowMat;
+  this.wheel3Shadow.scale.set(.55,.55,.55);
+  this.wheel3Shadow.parent = this.avatar;
+  this.wheel3Shadow.position = new Vec3(3, -1, -7.0);
+  this.wheel3Shadow.shadowMatrix = shadowMat;
+  
+  this.wheel4Shadow = new GameObject(this.wheelShadowMesh);
+  this.wheel4Shadow.shadowMatrix = shadowMat;
+  this.wheel4Shadow.scale.set(.55,.55,.55);
+  this.wheel4Shadow.parent = this.avatar;
+  this.wheel4Shadow.position = new Vec3(-3, -1, -7.0);
+  this.wheel4Shadow.shadowMatrix = shadowMat;
+  
+
   this.floor = new GameObject(new Mesh(this.texturedQuadGeometry, this.spMat2));
   this.floor.position = new Vec3(0, -2.5, 0)
 
@@ -73,23 +104,22 @@ let Scene = function(gl) {
   this.directionLPD = new Vec3(1000, 1000, 1000);
   this.pointLBD = new Vec3(100, 100, 100);
 
-
-  this.lights = [this.directionalLight, this.headLight];
+  this.lights = new Vec4Array(2);
+  this.lights.at(0).set(this.directionalLight);
+  this.lights.at(1).set(this.headLight);
+  // this.lights = [this.directionalLight, this.headLight];
   this.LPDs = [this.directionLPD, this.pointLBD];
 
-  Material.lightPos.at(0).set(this.lights[0]);
-  Material.lightPos.at(1).set(this.lights[1]);
-
-  Material.lightPowerDensity.at(0).set(this.LPDs[0]);
-  Material.lightPowerDensity.at(1).set(this.LPDs[1]);
-
-  Material.spotDirection.at(0).set(new Vec3(0, 1, 0));
-  Material.spotDirection.at(1).set(this.avatar.ahead);
 
   this.gl = gl;
 
   this.gameObjects = [this.wheel1, this.wheel2, this.wheel3, this.wheel4];
-  //this.gameObjects.push(this.avatarShadow);
+  this.gameObjects.push(this.avatarShadow);
+  this.gameObjects.push(this.wheel1Shadow);
+  this.gameObjects.push(this.wheel2Shadow);
+  this.gameObjects.push(this.wheel3Shadow);
+  this.gameObjects.push(this.wheel4Shadow);
+
   for (var i = 0; i < this.gameObjects.length; i++) {
     this.gameObjects[i].parent = this.avatar;
     this.gameObjects[i].draw(this.perspectiveCamera, this.lights, this.LPDs);
