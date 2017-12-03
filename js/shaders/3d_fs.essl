@@ -12,8 +12,15 @@ uniform vec3 lightPowerDensity[2];
 uniform vec3 spotDirection[2];
 
 void main(void) {
-	vec3 lightDirection = lightPos[0].xyz;
-	float cos = dot(normalize(lightDirection), normalize(worldNormal));
-	gl_FragColor = vec4(max(cos,0.0) * texture2D(colorTexture, texCoord).xyz, 1);
+	vec3 lightSum = vec3(0,0,0);
+	for (int i = 0; i < 2; i++) {
+		vec3 lightDirection = (lightPos[i].xyz - (worldPos * lightPos[i].w));
+		float cos = dot(normalize(lightDirection), normalize(worldNormal));
+		vec3 halfway = lightPowerDensity[i] / dot(lightDirection, lightDirection);
+		float spotLight = max(dot(normalize(lightDirection), normalize(spotDirection[i])), 0.0);
+
+		lightSum += max(cos, 0.0) * texture2D(colorTexture, texCoord).rgb * halfway * pow(spotLight, 5.0);
+	}
+	gl_FragColor = vec4(lightSum, 1);
 }
 `;

@@ -63,21 +63,9 @@ GameObject.prototype.updateOrientation = function() {
 GameObject.prototype.draw = function(camera, lightDirection, lightPowerDensities){ 
   this.updateModelMatrix();
     
-  // Material.modelMatrixInverse.set().mul(this.modelMatrix.clone()).invert();
-
-  // Material.modelViewProjMatrix.
-  //   set(this.modelMatrix).
-  //   mul(camera.viewProjMatrix);
-
-  console.log(lightDirection);
-
-  Material.lightPos.set(lightDirection);
-  Material.lightPowerDensity.set(lightPowerDensities);
-
-  this.mesh.setUniform("modelMatrix", this.modelMatrix);
-  this.mesh.setUniform("modelMatrixInverse", new Mat4(this.modelMatrix).invert());
-  this.mesh.setUniform("modelViewProjMatrix", this.modelMatrix.mul(camera.viewProjMatrix));
-  // this.mesh.setUniform("lightPos", this.lightDirection);
-  // this.mesh.setUniform("lightPowerDensity", this.lightPowerDensities);
+  Material.modelMatrix.set(this.modelMatrix);
+  Material.modelMatrixInverse.set(new Mat4(this.modelMatrix).invert());
+  Material.modelViewProjMatrix.set(this.modelMatrix.mul(camera.viewProjMatrix));
+  
   this.mesh.draw(); 
 };

@@ -38,13 +38,13 @@ let Scene = function(gl) {
   var shadowMat = new Mat4([1, 0, 0, 0, -1, 0, -2.5, 0, 0, 0, 1, 0, 0, .01, 0, 1]);
   this.avatarShadow.shadowMatrix = shadowMat;
   this.avatarShadow.parent = this.avatar;
-  this.avatarShadow.position = new Vec3(0,0,0);
   this.avatarShadow.scale.set(.5,.5,.5)
 
 
   this.texturedQuadGeometry = new TexturedQuadGeometry(gl);
   this.avatar = new GameObject(new MultiMesh(gl, "chevy/chassis.json", [this.spMat1]));
   this.avatar.scale.set(.5,.5,.5);
+  this.avatar.position.set(0,2.5,0);
 
   this.wheel1 = new GameObject(new MultiMesh(gl, "chevy/wheel.json", [this.spMat1]));
   this.wheel2 = new GameObject(new MultiMesh(gl, "chevy/wheel.json", [this.spMat1]));
@@ -90,7 +90,9 @@ let Scene = function(gl) {
   
 
   this.floor = new GameObject(new Mesh(this.texturedQuadGeometry, this.spMat2));
-  this.floor.position = new Vec3(0, -2.5, 0)
+  this.floor.position = new Vec3(0, -.1, 0);
+
+  this.avatarShadow.position = new Vec3(0,.1,0)
 
       
   this.camera = new OrthoCamera();
@@ -99,16 +101,30 @@ let Scene = function(gl) {
 
    // LIGHT STUFF
 
-  this.directionalLight = new Vec4(0, 1, 0, 0);
+  this.directionalLight = new Vec4(.1, .1, .1, 0);
   this.headLight = new Vec4(this.avatar.position + this.avatar.ahead, 1);
-  this.directionLPD = new Vec3(1000, 1000, 1000);
-  this.pointLBD = new Vec3(100, 100, 100);
+  this.directionLPD = new Vec3(.1, .1, .1);
+  this.pointLPD = new Vec3(10000, 10000, 10000);
 
   this.lights = new Vec4Array(2);
   this.lights.at(0).set(this.directionalLight);
   this.lights.at(1).set(this.headLight);
-  // this.lights = [this.directionalLight, this.headLight];
-  this.LPDs = [this.directionLPD, this.pointLBD];
+
+  this.LPDs = new Vec3Array(2);
+  this.LPDs.at(0).set(this.directionLPD);
+  this.LPDs.at(1).set(this.pointLPD)
+
+
+  Material.lightPos.at(0).set(this.lights.at(0));
+  Material.lightPos.at(1).set(this.lights.at(1));
+
+
+  Material.lightPowerDensity.at(0).set(this.LPDs.at(0));
+  Material.lightPowerDensity.at(1).set(this.LPDs.at(1));
+
+
+  Material.spotDirection.at(0).set(new Vec3(1,1,0));
+  Material.spotDirection.at(1).set(this.avatar.ahead);
 
 
   this.gl = gl;
@@ -154,6 +170,7 @@ Scene.prototype.update = function(gl, keysPressed) {
   if (keysPressed["W"]) {
     this.avatar.velocity.add(this.avatar.ahead);
     this.avatar.move(dt);
+
     this.wheel1.pitch -= 10*dt;
     this.wheel2.pitch -= 10*dt;
     this.wheel3.pitch -= 10*dt;
@@ -215,6 +232,10 @@ Scene.prototype.update = function(gl, keysPressed) {
 
   }
 
+  this.headLight = new Vec4(this.avatar.position.clone().add(this.avatar.ahead.clone().mul(12)), 1);
+  Material.lightPos.at(1).set(this.headLight);
+
+  Material.spotDirection.at(1).set(this.avatar.ahead.clone().mul(-1,1,-1));
   this.floor.draw(this.perspectiveCamera, this.lights, this.LPDs);
 
 

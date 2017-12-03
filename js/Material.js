@@ -10,8 +10,9 @@ let Material = function(gl, program) {
     let reflectionVariable = 
         UniformReflectionFactories.makeVar(gl,
                                 uniform.type, uniform.size, uniform.textureUnit); 
-    Object.defineProperty(theMaterial, uniformName,
-        {value: reflectionVariable} ); 
+    
+      Object.defineProperty(theMaterial, uniformName, { value: reflectionVariable} );
+    
   }); 
 
 
@@ -35,8 +36,8 @@ Material.prototype.commit = function() {
   let theMaterial = this; 
   Object.keys(this.program.uniforms).forEach( function(uniformName) { 
     let uniform = theMaterial.program.uniforms[uniformName]; 
-    theMaterial[uniformName].commit(gl, uniform.location); 
-
+    let reflectionVariable = Material[uniformName] || theMaterial[uniformName];
+    reflectionVariable.commit(gl, uniform.location);
   }); 
 }; 
 
@@ -63,16 +64,13 @@ Object.defineProperty(Material,
  "modelMatrixInverse", {value: new Mat4()} );
 
 Object.defineProperty(Material,
- "lightDirection", {value: new Vec3()} );
-
-Object.defineProperty(Material,
  "lightPos", {value: new Vec4Array(2)} );
 
 Object.defineProperty(Material,
  "lightPowerDensity", {value: new Vec3Array(2)} );
 
 Object.defineProperty(Material,
- "spotDir", {value: new Vec3Array(2)} );
+ "spotDirection", {value: new Vec3Array(2)} );
 
 
 
